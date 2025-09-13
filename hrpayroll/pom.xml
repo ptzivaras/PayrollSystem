@@ -22,6 +22,8 @@
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
 		<postgresql.version>42.7.3</postgresql.version>
 		<testcontainers.version>1.19.7</testcontainers.version>
+		<!-- αποφεύγουμε module-path με Java 21 -->
+		<maven.compiler.release>${java.version}</maven.compiler.release>
 	</properties>
 
 	<dependencies>
@@ -51,18 +53,17 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Flyway for migrations -->
+		<!-- Flyway 10+ -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 		</dependency>
-		<!-- Απαραίτητο από Flyway 10+ για Postgres -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-database-postgresql</artifactId>
 		</dependency>
 
-		<!-- MapStruct (DTO mapping) -->
+		<!-- MapStruct -->
 		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
@@ -75,7 +76,7 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- Test -->
+		<!-- Tests -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -102,11 +103,13 @@
 
 	<build>
 		<plugins>
+			<!-- Java 21 + MapStruct annotation processing -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.11.0</version>
 				<configuration>
-					<release>${java.version}</release>
+					<release>${maven.compiler.release}</release>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.mapstruct</groupId>
@@ -116,14 +119,20 @@
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
+
+			<!-- (Προαιρετικό) Σιγουρεύει JUnit 5 με Java 21 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.2.5</version>
+				<configuration>
+					<useModulePath>false</useModulePath>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<image>
-						<name>hrpayroll:${project.version}</name>
-					</image>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

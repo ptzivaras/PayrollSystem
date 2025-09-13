@@ -1,7 +1,6 @@
 package com.example.hrpayroll.service;
 
 import com.example.hrpayroll.dto.PayrollRunDto;
-import com.example.hrpayroll.entity.Department;
 import com.example.hrpayroll.entity.PayrollRun;
 import com.example.hrpayroll.entity.PayrollStatus;
 import com.example.hrpayroll.exception.BusinessException;

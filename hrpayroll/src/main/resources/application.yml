@@ -30,3 +30,9 @@ logging:
   level:
     root: INFO
     org.hibernate.SQL: INFO
+
+app:
+  cors:
+    allowed-origins:
+      - http://localhost:5173
+

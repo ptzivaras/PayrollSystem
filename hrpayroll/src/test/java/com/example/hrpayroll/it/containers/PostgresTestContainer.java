@@ -1,4 +1,4 @@
-package com.example.hrpayroll.containers;
+package com.example.hrpayroll.it.containers;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;

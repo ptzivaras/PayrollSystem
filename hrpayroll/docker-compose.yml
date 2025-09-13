@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: hrpayroll-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: hrpayroll
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_hrpayroll:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d hrpayroll"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Optional admin UI
+  pgadmin:
+    image: dpage/pgadmin4:8.11
+    container_name: hrpayroll-pgadmin
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+
+  # Optional backend (commented out; you can enable later)
+  # backend:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: hrpayroll-backend
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_PROFILES_ACTIVE: default
+  #     DB_URL: jdbc:postgresql://postgres:5432/hrpayroll
+  #     DB_USER: postgres
+  #     DB_PASSWORD: password
+  #     CORS_ORIGINS: http://localhost:5173
+  #   ports:
+  #     - "8080:8080"
+
+volumes:
+  pgdata_hrpayroll:

@@ -1,4 +1,4 @@
-package com.example.hrpayroll.containers;
+package com.example.hrpayroll.it.containers;
 
 import com.example.hrpayroll.dto.DepartmentDto;
 import com.example.hrpayroll.dto.PayrollRunDto;

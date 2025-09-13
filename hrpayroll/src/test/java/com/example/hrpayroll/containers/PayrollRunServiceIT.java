@@ -1,10 +1,9 @@
-package com.example.hrpayroll.it;
+package com.example.hrpayroll.containers;
 
 import com.example.hrpayroll.dto.DepartmentDto;
 import com.example.hrpayroll.dto.PayrollRunDto;
 import com.example.hrpayroll.service.DepartmentService;
 import com.example.hrpayroll.service.PayrollRunService;
-import com.example.hrpayroll.it.containers.PostgresTestContainer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

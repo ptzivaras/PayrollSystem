@@ -1,4 +1,4 @@
-package com.example.hrpayroll.service;
+package com.example.hrpayroll;
 
 import com.example.hrpayroll.dto.EmployeeDto;
 import com.example.hrpayroll.entity.Department;
@@ -8,6 +8,7 @@ import com.example.hrpayroll.exception.ResourceNotFoundException;
 import com.example.hrpayroll.mapper.EmployeeMapper;
 import com.example.hrpayroll.repository.DepartmentRepository;
 import com.example.hrpayroll.repository.EmployeeRepository;
+import com.example.hrpayroll.service.EmployeeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -107,7 +108,7 @@ class EmployeeServiceTest {
 
         when(employeeRepository.existsByEmail("grace@example.com")).thenReturn(false);
         when(departmentRepository.findById(1L)).thenReturn(Optional.of(new Department()));
-        when(employeeRepository.save(ArgumentMatchers.any(Employee.class)))
+        when(employeeRepository.save(any(Employee.class)))
                 .thenAnswer(inv -> {
                     Employee e = inv.getArgument(0);
                     e.setId(1L);

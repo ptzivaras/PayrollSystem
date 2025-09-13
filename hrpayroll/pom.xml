@@ -22,7 +22,7 @@
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
 		<postgresql.version>42.7.3</postgresql.version>
 		<testcontainers.version>1.19.7</testcontainers.version>
-		<!-- αποφεύγουμε module-path με Java 21 -->
+		<springdoc.version>2.5.0</springdoc.version>
 		<maven.compiler.release>${java.version}</maven.compiler.release>
 	</properties>
 
@@ -76,6 +76,13 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- OpenAPI / Swagger UI -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${springdoc.version}</version>
+		</dependency>
+
 		<!-- Tests -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -103,7 +110,7 @@
 
 	<build>
 		<plugins>
-			<!-- Java 21 + MapStruct annotation processing -->
+			<!-- Java 21 + MapStruct -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -120,7 +127,7 @@
 				</configuration>
 			</plugin>
 
-			<!-- (Προαιρετικό) Σιγουρεύει JUnit 5 με Java 21 -->
+			<!-- JUnit 5 / Java 21 -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>

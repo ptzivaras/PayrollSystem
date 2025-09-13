@@ -56,6 +56,11 @@
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 		</dependency>
+		<!-- Απαραίτητο από Flyway 10+ για Postgres -->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
 
 		<!-- MapStruct (DTO mapping) -->
 		<dependency>

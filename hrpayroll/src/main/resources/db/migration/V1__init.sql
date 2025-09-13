@@ -1,5 +1,3 @@
--- Schema: base tables, enums, FKs, basic constraints
-
 -- Enum for payroll run status
 DO $$
 BEGIN

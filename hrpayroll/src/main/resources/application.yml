@@ -1,10 +1,13 @@
 spring:
   application:
     name: hrpayroll
+
   datasource:
     url: jdbc:postgresql://localhost:5432/hrpayroll
     username: postgres
-    password: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: validate
@@ -14,6 +17,7 @@ spring:
         jdbc:
           time_zone: UTC
     open-in-view: false
+
   flyway:
     enabled: true
     locations: classpath:db/migration

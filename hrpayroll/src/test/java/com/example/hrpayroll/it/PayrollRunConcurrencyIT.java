@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.concurrent.TimeUnit;
+//import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,7 +39,7 @@ class PayrollRunConcurrencyIT extends PostgresTestContainer {
             futures.add(exec.submit(task));
         }
         exec.shutdown();
-        exec.awaitTermination(30, TimeUnit.SECONDS);
+        //exec.awaitTermination(30, TimeUnit.SECONDS);
 
         int success = 0;
         int failures = 0;

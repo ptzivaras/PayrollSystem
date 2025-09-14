@@ -36,14 +36,13 @@ public class PayrollRunService {
     }
 
     /**
-     * Δημιουργεί νέο payroll run για συγκεκριμένη περίοδο (π.χ. 2025-09-01).
-     * Καλεί την stored procedure calc_payroll_for_period(period, departmentId).
+     * Create a new payroll run for a given period (first-of-month) and optional department.
+     * Calls stored function calc_payroll_for_period(period, departmentId).
      */
     @Transactional
     public PayrollRunDto createRun(LocalDate period, Long departmentId) {
         LocalDate firstOfMonth = period.withDayOfMonth(1);
 
-        // Guard: μη δημιουργήσεις δεύτερο run για την ίδια περίοδο+department
         boolean exists = (departmentId == null)
                 ? runRepository.existsByPeriodAndDepartmentIsNull(firstOfMonth)
                 : runRepository.existsByPeriodAndDepartment_Id(firstOfMonth, departmentId);
@@ -58,7 +57,6 @@ public class PayrollRunService {
                     .orElseThrow(() -> new ResourceNotFoundException("Department not found: " + departmentId));
         }
 
-        // Κλήση stored procedure (PL/pgSQL)
         try {
             if (departmentId == null) {
                 jdbcTemplate.update("SELECT calc_payroll_for_period(?::date, NULL)", firstOfMonth);
@@ -69,8 +67,14 @@ public class PayrollRunService {
             throw new BusinessException("Failed to create payroll run: " + ex.getMostSpecificCause().getMessage());
         }
 
-        // Επιστροφή του run που μόλις δημιουργήθηκε (τελευταίο PENDING για period/department)
-        Page<PayrollRun> page = runRepository.search(departmentId, firstOfMonth, Pageable.ofSize(1));
+        // Fetch the run we just created (use derived finders instead of nullable-parameter JPQL)
+        Page<PayrollRun> page;
+        if (departmentId == null) {
+            page = runRepository.findByPeriod(firstOfMonth, Pageable.ofSize(1));
+        } else {
+            page = runRepository.findByDepartment_IdAndPeriod(departmentId, firstOfMonth, Pageable.ofSize(1));
+        }
+
         PayrollRun run = page.stream().findFirst()
                 .orElseThrow(() -> new BusinessException("Payroll run creation did not persist as expected."));
         return mapper.toDto(run);
@@ -91,7 +95,19 @@ public class PayrollRunService {
     @Transactional(readOnly = true)
     public Page<PayrollRunDto> list(Long departmentId, LocalDate period, Pageable pageable) {
         LocalDate first = (period != null) ? period.withDayOfMonth(1) : null;
-        return runRepository.search(departmentId, period, pageable).map(mapper::toDto);
+
+        Page<PayrollRun> page;
+        if (departmentId != null && first != null) {
+            page = runRepository.findByDepartment_IdAndPeriod(departmentId, first, pageable);
+        } else if (departmentId != null) {
+            page = runRepository.findByDepartment_Id(departmentId, pageable);
+        } else if (first != null) {
+            page = runRepository.findByPeriod(first, pageable);
+        } else {
+            page = runRepository.findAll(pageable);
+        }
+
+        return page.map(mapper::toDto);
     }
 
     @Transactional(readOnly = true)

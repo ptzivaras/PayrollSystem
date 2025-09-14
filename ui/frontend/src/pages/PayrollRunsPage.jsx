@@ -3,6 +3,7 @@ import { createRun, listRuns, postRun } from '../api/payroll'
 import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import Pagination from '../components/Pagination'
+import ErrorBanner from '../components/ErrorBanner'
 
 function firstDay(dateLike = new Date()) {
   const d = new Date(dateLike)
@@ -24,28 +25,33 @@ export default function PayrollRunsPage() {
   const runsQ = useQuery({
     queryKey: ['runs', { period, page, size }],
     queryFn: () => listRuns({ period, page, size }),
-    keepPreviousData: true
+    keepPreviousData: true,
   })
 
-  useEffect(() => { setPage(0) }, [period])
+  useEffect(() => {
+    setPage(0)
+  }, [period])
 
   const createMut = useMutation({
     mutationFn: (p) => createRun(p),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['runs'] })
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['runs'] }),
   })
   const postMut = useMutation({
     mutationFn: (id) => postRun(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['runs'] })
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['runs'] }),
   })
 
   const totalPages = runsQ.data?.totalPages ?? 0
   const currentPage = runsQ.data?.number ?? page
+  const rows = runsQ.data?.content ?? []
 
   const buttonsDisabled = runsQ.isFetching || createMut.isPending || postMut.isPending
 
   const header = useMemo(() => {
     const d = new Date(period)
-    return isNaN(d) ? '—' : d.toLocaleDateString(undefined, { year: 'numeric', month: 'long' })
+    return isNaN(d)
+      ? '—'
+      : d.toLocaleDateString(undefined, { year: 'numeric', month: 'long' })
   }, [period])
 
   return (
@@ -53,11 +59,43 @@ export default function PayrollRunsPage() {
       <h2>Payroll Runs</h2>
 
       {/* Period controls */}
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: 8,
+          alignItems: 'center',
+          marginBottom: 12,
+          flexWrap: 'wrap',
+        }}
+      >
         <strong>Period:</strong>
-        <button disabled={buttonsDisabled} onClick={() => { setUseCustom(false); setPeriod(shiftMonth(period, -1)) }}>Prev</button>
-        <button disabled={buttonsDisabled} onClick={() => { setUseCustom(false); setPeriod(firstDay()) }}>This month</button>
-        <button disabled={buttonsDisabled} onClick={() => { setUseCustom(false); setPeriod(shiftMonth(period, +1)) }}>Next</button>
+        <button
+          disabled={buttonsDisabled}
+          onClick={() => {
+            setUseCustom(false)
+            setPeriod(shiftMonth(period, -1))
+          }}
+        >
+          Prev
+        </button>
+        <button
+          disabled={buttonsDisabled}
+          onClick={() => {
+            setUseCustom(false)
+            setPeriod(firstDay())
+          }}
+        >
+          This month
+        </button>
+        <button
+          disabled={buttonsDisabled}
+          onClick={() => {
+            setUseCustom(false)
+            setPeriod(shiftMonth(period, +1))
+          }}
+        >
+          Next
+        </button>
 
         <label style={{ display: 'inline-flex', gap: 6, alignItems: 'center', marginLeft: 8 }}>
           <input
@@ -84,51 +122,49 @@ export default function PayrollRunsPage() {
           Apply
         </button>
 
-        <button
-          onClick={() => createMut.mutate({ period })}
-          disabled={buttonsDisabled}
-        >
+        <button onClick={() => createMut.mutate({ period })} disabled={buttonsDisabled}>
           {createMut.isPending ? 'Creating…' : 'Create Run (company-wide)'}
         </button>
       </div>
 
+      <ErrorBanner error={runsQ.error || createMut.error || postMut.error} />
       {runsQ.isLoading && <p>Loading…</p>}
-      {runsQ.error && <p style={{ color: 'crimson' }}>{String(runsQ.error)}</p>}
 
-      <table border="1" cellPadding="6" style={{ width: '100%' }}>
-        <thead>
-        <tr>
-          <th>ID</th><th>Period</th><th>Dept</th><th>Status</th><th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        {runsQ.data?.content?.map((r) => (
-          <tr key={r.id}>
-            <td>{r.id}</td>
-            <td>{r.period}</td>
-            <td>{r.departmentId ?? '-'}</td>
-            <td>{r.status}</td>
-            <td style={{ display: 'flex', gap: 8 }}>
-              <Link to={`/payroll/${r.id}`}>Details</Link>
-              {r.status !== 'POSTED' && (
-                <button
-                  onClick={() => postMut.mutate(r.id)}
-                  disabled={buttonsDisabled}
-                >
-                  {postMut.isPending ? 'Posting…' : 'Post'}
-                </button>
-              )}
-            </td>
-          </tr>
-        ))}
-        </tbody>
-      </table>
+      {!runsQ.isLoading && rows.length === 0 && !runsQ.error && <p>No payroll runs.</p>}
 
-      <Pagination
-        page={currentPage}
-        totalPages={totalPages}
-        onPageChange={setPage}
-      />
+      {rows.length > 0 && (
+        <table border="1" cellPadding="6" style={{ width: '100%' }}>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Period</th>
+              <th>Dept</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.id}>
+                <td>{r.id}</td>
+                <td>{r.period}</td>
+                <td>{r.departmentId ?? '-'}</td>
+                <td>{r.status}</td>
+                <td style={{ display: 'flex', gap: 8 }}>
+                  <Link to={`/payroll/${r.id}`}>Details</Link>
+                  {r.status !== 'POSTED' && (
+                    <button onClick={() => postMut.mutate(r.id)} disabled={buttonsDisabled}>
+                      {postMut.isPending ? 'Posting…' : 'Post'}
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      <Pagination page={currentPage} totalPages={totalPages} onPageChange={setPage} />
     </section>
   )
 }

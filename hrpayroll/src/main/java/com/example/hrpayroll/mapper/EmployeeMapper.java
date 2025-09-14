@@ -3,21 +3,28 @@ package com.example.hrpayroll.mapper;
 import com.example.hrpayroll.dto.EmployeeDto;
 import com.example.hrpayroll.entity.Department;
 import com.example.hrpayroll.entity.Employee;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
+import org.mapstruct.*;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
+)
 public interface EmployeeMapper {
 
-    @Mapping(target = "departmentId",
-            expression = "java(employee.getDepartment() != null ? employee.getDepartment().getId() : null)")
-    @Mapping(target = "departmentName",
-            expression = "java(employee.getDepartment() != null ? employee.getDepartment().getName() : null)")
+    @Mappings({
+            @Mapping(target = "departmentId",
+                    expression = "java(employee.getDepartment() != null ? employee.getDepartment().getId() : null)"),
+            @Mapping(target = "departmentName",
+                    expression = "java(employee.getDepartment() != null ? employee.getDepartment().getName() : null)")
+    })
     EmployeeDto toDto(Employee employee);
 
-    @Mapping(target = "department",
-            expression = "java(departmentFromId(dto.getDepartmentId()))")
+    @Mappings({
+            @Mapping(target = "department",
+                    expression = "java(departmentFromId(dto.getDepartmentId()))"),
+            @Mapping(target = "createdAt", ignore = true),
+            @Mapping(target = "payrollItems", ignore = true)
+    })
     Employee toEntity(EmployeeDto dto);
 
     default Department departmentFromId(Long id) {

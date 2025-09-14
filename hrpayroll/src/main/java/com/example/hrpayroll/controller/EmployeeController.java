@@ -43,7 +43,8 @@ public class EmployeeController {
     @GetMapping
     public ResponseEntity<Page<EmployeeDto>> search(@RequestParam(required = false) String q,
                                                     @RequestParam(required = false) Long departmentId,
-                                                    @PageableDefault(size = 20, sort = "lastName") Pageable pageable) {
+                                                    // IMPORTANT: no default sort here; native query does ORDER BY
+                                                    @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(service.search(q, departmentId, pageable));
     }
 

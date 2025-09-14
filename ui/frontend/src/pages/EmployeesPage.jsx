@@ -1,10 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { listEmployees, createEmployee } from '../api/employees'
+import { useQuery } from '@tanstack/react-query'
+import { listEmployees } from '../api/employees'
 import { useEffect, useState } from 'react'
 import Pagination from '../components/Pagination'
+import EmployeeForm from '../components/EmployeeForm'
 
 export default function EmployeesPage() {
-  const qc = useQueryClient()
   const [q, setQ] = useState('')
   const [page, setPage] = useState(0)
   const size = 10
@@ -15,13 +15,7 @@ export default function EmployeesPage() {
     keepPreviousData: true
   })
 
-  // Reset to first page when filter changes
   useEffect(() => { setPage(0) }, [q])
-
-  const createMut = useMutation({
-    mutationFn: createEmployee,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['employees'] })
-  })
 
   const totalPages = data?.totalPages ?? 0
   const currentPage = data?.number ?? page
@@ -67,19 +61,7 @@ export default function EmployeesPage() {
       />
 
       <hr style={{ margin: '16px 0' }} />
-      <button onClick={() => {
-        const payload = {
-          firstName: 'Ada',
-          lastName: 'Lovelace',
-          email: `ada${Math.floor(Math.random()*10000)}@example.com`,
-          baseSalary: 1600.00,
-          hireDate: new Date().toISOString().slice(0,10),
-          active: true
-        }
-        createMut.mutate(payload)
-      }}>
-        Quick add employee
-      </button>
+      <EmployeeForm />
     </section>
   )
 }

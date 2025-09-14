@@ -1,16 +1,11 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { listDepartments, createDepartment } from '../api/departments'
+import { useQuery } from '@tanstack/react-query'
+import { listDepartments } from '../api/departments'
+import DepartmentForm from '../components/DepartmentForm'
 
 export default function DepartmentsPage() {
-  const qc = useQueryClient()
   const { data, isLoading, error } = useQuery({
     queryKey: ['departments'],
     queryFn: listDepartments
-  })
-
-  const createMut = useMutation({
-    mutationFn: createDepartment,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['departments'] })
   })
 
   return (
@@ -26,12 +21,7 @@ export default function DepartmentsPage() {
       </ul>
 
       <hr />
-      <button onClick={() => createMut.mutate({
-        name: 'Engineering ' + Math.floor(Math.random()*1000),
-        code: 'ENG' + Math.floor(Math.random()*1000)
-      })}>
-        Quick add department
-      </button>
+      <DepartmentForm />
     </section>
   )
 }

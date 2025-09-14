@@ -1,4 +1,9 @@
 # React + Vite
+Simple UI for the HR/Payroll demo backend. It lets you:
+- List/search/paginate employees
+- Create employees and departments
+- List payroll runs, create a run for a period, and post it
+- View payroll items for a run
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

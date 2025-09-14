@@ -1,20 +1,30 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { listEmployees, createEmployee } from '../api/employees'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import Pagination from '../components/Pagination'
 
 export default function EmployeesPage() {
   const qc = useQueryClient()
   const [q, setQ] = useState('')
+  const [page, setPage] = useState(0)
+  const size = 10
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['employees', { q }],
-    queryFn: () => listEmployees({ q, page: 0, size: 20 })
+  const { data, isLoading, error, refetch, isFetching } = useQuery({
+    queryKey: ['employees', { q, page, size }],
+    queryFn: () => listEmployees({ q, page, size }),
+    keepPreviousData: true
   })
+
+  // Reset to first page when filter changes
+  useEffect(() => { setPage(0) }, [q])
 
   const createMut = useMutation({
     mutationFn: createEmployee,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['employees'] })
   })
+
+  const totalPages = data?.totalPages ?? 0
+  const currentPage = data?.number ?? page
 
   return (
     <section>
@@ -25,13 +35,13 @@ export default function EmployeesPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
-        <button onClick={() => qc.invalidateQueries({ queryKey: ['employees'] })}>Search</button>
+        <button onClick={() => refetch()}>Search</button>
       </div>
 
-      {isLoading && <p>Loading…</p>}
+      {(isLoading || isFetching) && <p>Loading…</p>}
       {error && <p style={{ color: 'crimson' }}>{String(error)}</p>}
 
-      <table border="1" cellPadding="6">
+      <table border="1" cellPadding="6" style={{ width: '100%', marginTop: 8 }}>
         <thead>
           <tr>
             <th>ID</th><th>Name</th><th>Email</th><th>Dept</th><th>Salary</th>
@@ -49,6 +59,12 @@ export default function EmployeesPage() {
           ))}
         </tbody>
       </table>
+
+      <Pagination
+        page={currentPage}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
 
       <hr style={{ margin: '16px 0' }} />
       <button onClick={() => {

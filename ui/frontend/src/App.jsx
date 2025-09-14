@@ -4,6 +4,7 @@ import EmployeesPage from './pages/EmployeesPage'
 import DepartmentsPage from './pages/DepartmentsPage'
 import PayrollRunsPage from './pages/PayrollRunsPage'
 import RunDetailsPage from './pages/RunDetailsPage'
+import { useState } from 'react'
 
 function App() {
   const [count, setCount] = useState(0)

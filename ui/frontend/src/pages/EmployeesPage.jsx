@@ -47,7 +47,7 @@ export default function EmployeesPage() {
               <td>{e.id}</td>
               <td>{e.firstName} {e.lastName}</td>
               <td>{e.email}</td>
-              <td>{e.departmentId ?? '-'}</td>
+              <td>{e.departmentName ?? '-'}</td>
               <td>{e.baseSalary}</td>
             </tr>
           ))}

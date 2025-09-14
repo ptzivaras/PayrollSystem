@@ -19,6 +19,8 @@ public class EmployeeDto {
 
     private Long departmentId;
 
+    private String departmentName;
+
     @Positive
     private BigDecimal baseSalary;
 

@@ -12,6 +12,8 @@ public interface EmployeeMapper {
 
     @Mapping(target = "departmentId",
             expression = "java(employee.getDepartment() != null ? employee.getDepartment().getId() : null)")
+    @Mapping(target = "departmentName",
+            expression = "java(employee.getDepartment() != null ? employee.getDepartment().getName() : null)")
     EmployeeDto toDto(Employee employee);
 
     @Mapping(target = "department",

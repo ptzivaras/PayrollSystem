@@ -90,6 +90,7 @@ public class PayrollRunService {
 
     @Transactional(readOnly = true)
     public Page<PayrollRunDto> list(Long departmentId, LocalDate period, Pageable pageable) {
+        LocalDate first = (period != null) ? period.withDayOfMonth(1) : null;
         return runRepository.search(departmentId, period, pageable).map(mapper::toDto);
     }
 

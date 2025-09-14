@@ -23,17 +23,15 @@ public class PayrollRunController {
         this.service = service;
     }
 
-    /**
-     * Δημιουργεί run για την περίοδο (π.χ. ?period=2025-09-01) και προαιρετικά departmentId.
-     * Καλεί την stored procedure στο service.
-     */
     @PostMapping
     public ResponseEntity<PayrollRunDto> createRun(
             @RequestParam @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate period,
             @RequestParam(required = false) Long departmentId,
             UriComponentsBuilder uriBuilder
     ) {
-        PayrollRunDto created = service.createRun(period, departmentId);
+        // normalize to first-of-month
+        LocalDate first = period.withDayOfMonth(1);
+        PayrollRunDto created = service.createRun(first, departmentId);
         return ResponseEntity
                 .created(uriBuilder.path("/api/payroll/runs/{id}").build(created.getId()))
                 .body(created);
@@ -53,8 +51,10 @@ public class PayrollRunController {
     public ResponseEntity<Page<PayrollRunDto>> list(
             @RequestParam(required = false) Long departmentId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate period,
-            @PageableDefault(size = 20, sort = "createdAt") Pageable pageable
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        return ResponseEntity.ok(service.list(departmentId, period, pageable));
+        // normalize if present
+        LocalDate first = (period == null) ? null : period.withDayOfMonth(1);
+        return ResponseEntity.ok(service.list(departmentId, first, pageable));
     }
 }
